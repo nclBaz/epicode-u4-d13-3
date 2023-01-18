@@ -6,8 +6,6 @@ const booksRouter = express.Router()
 
 booksRouter.get("/", async (req, res, next) => {
   try {
-    console.log("EXPRESS QUERY:", req.query)
-    console.log("QUERY 2 MONGO:", q2m(req.query))
     const mongoQuery = q2m(req.query)
 
     const total = await BooksModel.countDocuments(mongoQuery.criteria)

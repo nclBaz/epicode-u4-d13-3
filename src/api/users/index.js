@@ -1,6 +1,7 @@
 import express from "express"
 import createHttpError from "http-errors"
 import UsersModel from "./model.js"
+import BooksModel from "../books/model.js"
 
 const usersRouter = express.Router()
 
@@ -74,6 +75,67 @@ usersRouter.delete("/:userId", async (req, res, next) => {
     } else {
       next(createHttpError(404, `User with id ${req.params.userId} not found!`))
     }
+  } catch (error) {
+    next(error)
+  }
+})
+
+// ********************************** EMBEDDED EXAMPLE ****************************************************
+
+usersRouter.post("/:userId/purchaseHistory", async (req, res, next) => {
+  try {
+    // We gonna receive a bookId in the req.body. Given that ID, we would like to insert the corresponding book into the purchase history array of the specified user
+
+    // 1. Find the book by id in the books'collection
+    const purchasedBook = await BooksModel.findById(req.body.bookId, { _id: 0 })
+    // here we could use projection ({_id: 0}) to remove the _id from the book. In this way Mongo will create automagically a unique _id for every item added to the array
+
+    if (purchasedBook) {
+      // 2. If the book is found --> add additional info like purchaseDate
+      const bookToInsert = { ...purchasedBook.toObject(), purchaseDate: new Date() }
+      // purchasedBook and EVERYTHING comes from a .find(), .findById(),.... is a MONGOOSE DOCUMENT not a normal object!
+      // Therefore if you want to spread it probably you should convert it into a plain normal object
+      console.log(bookToInsert)
+      // 3. Update the specified user by adding that book to his/her purchaseHistory array
+      const updatedUser = await UsersModel.findByIdAndUpdate(
+        req.params.userId, // WHO
+        { $push: { purchaseHistory: bookToInsert } }, // HOW
+        { new: true, runValidators: true } // OPTIONS
+      )
+
+      res.send(updatedUser)
+    } else {
+      // 4. In case of either book not found or user not found --> 404
+      next(createHttpError(404, `Book with id ${req.body.bookId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+usersRouter.get("/:userId/purchaseHistory", async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error)
+  }
+})
+
+usersRouter.get("/:userId/purchaseHistory/:productId", async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error)
+  }
+})
+
+usersRouter.put("/:userId/purchaseHistory/:productId", async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error)
+  }
+})
+
+usersRouter.delete("/:userId/purchaseHistory/:productId", async (req, res, next) => {
+  try {
   } catch (error) {
     next(error)
   }

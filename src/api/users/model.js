@@ -14,6 +14,15 @@ const usersSchema = new Schema(
       number: { type: Number },
     },
     professions: [String],
+    purchaseHistory: [
+      {
+        title: String,
+        category: String,
+        asin: String,
+        price: Number,
+        purchaseDate: Date,
+      },
+    ],
   },
   {
     timestamps: true, // this option automatically the createdAt and updatedAt fields
